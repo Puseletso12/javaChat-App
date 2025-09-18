@@ -23,27 +23,34 @@ public class LoginTest {
     public void testUserNameIncorrectlyFormatted() {
         String username = "kyle!!!!!!!";
         boolean result = login.checkUserName(username);
-        assertFalse("The username does not contain an underscore and is no more than five characters long.", result);
+        assertFalse("Username is not correctly formatted, please ensure that your username contains an underscore and is no more than five characters in length.", result);
     }
     
     @Test
     public void testPasswordMeetsComplexityRequirements() {
         String password = "Ch&&sec@ke99!";
         boolean result = login.checkPasswordComplexity(password);
-        assertTrue ("Password should meet complexity requirements", result);
+        assertTrue ("Password successfully captured.", result);
     }
     
     @Test
     public void testPasswordDoesNotMeetComplexityRequirements() {
         String password = "password";
         boolean result = login.checkPasswordComplexity(password);
-        assertFalse ("Password should not meet complexity requirements", result);
+        assertFalse ("Password is not correctly formatted, please ensure that the password contains at least eight characters, a capital letter, a number, and a special character", result);
     }
     
     @Test
     public void testPhoneNumberCorrectlyFormatted() {
         String phoneNumber = "+27838368976";
         boolean result = login.checkCellPhoneNumber(phoneNumber);
-        assertTrue ("Phone number should be correctly formatted", result);
+        assertTrue ("Cell number successfully captured", result);
+    }
+    
+    @Test 
+    public void testPhoneNumberIncorrectlyFormatted() {
+        String phoneNumber = "08966553";
+        boolean result = login.checkCellPhoneNumber(phoneNumber);
+        assertFalse("Cell number is incorrectly formatted or does not contain an international code, please correct the number and try again", result);
     }
 }
