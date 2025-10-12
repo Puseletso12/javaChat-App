@@ -30,7 +30,7 @@ public class JavaChatApp {
         System.out.print("Enter password: ");
         String password = sc.nextLine();
         
-        System.out.print("Enter South African phone number (+27XXXXXXXXX)");
+        System.out.print("Enter South African phone number (+27XXXXXXXXX or 0XXXXXXXXX)");
         String phoneNumber = sc.nextLine();
         
         String registrationResult = login.registerUser(username, password, firstName, lastName, phoneNumber);
