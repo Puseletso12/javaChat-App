@@ -36,7 +36,7 @@ public class Message {
         this.messageNumber = messageNumber;
         this.recipient = recipient; 
         this.messageText = messageText;
-//        this.messageHash = generateMessageHash();
+        this.messageHash = createMessageHash();
     }
     
     private String generateMessageID() {
@@ -92,7 +92,7 @@ public class Message {
     }
     
     public String printMessage() {
-        return String.format("Message ID: %\nMessage Hash: %s\nRecipient: %s\nMessage: %s", messageID, messageHash, recipient, messageText);
+        return String.format("Message ID: %s\nMessage Hash: %s\nRecipient: %s\nMessage: %s", messageID, messageHash, recipient, messageText);
     }
     
     public static int returnTotalMessages() {
