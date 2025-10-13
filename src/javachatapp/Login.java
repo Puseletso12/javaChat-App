@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 *
 * APA reference:
 * OpenAI. 2025. ChatGPT (February 2025 version). [online]
-* Available att: https://chat.openai.com [Accessed 13 September 2025]
+* Available at: https://chat.openai.com [Accessed 13 September 2025]
 */
 
 public class Login {
