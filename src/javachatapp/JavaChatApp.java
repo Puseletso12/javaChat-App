@@ -35,6 +35,8 @@ public class JavaChatApp {
         String registrationResult = login.registerUser(username, password, firstName, lastName, phoneNumber);
         System.out.println(registrationResult);
         
+        //Login possible only afater registration is successful
+        
         if (registrationResult.equals("User registered successfully!")) {
             System.out.println("\n== Login System ==");
             
@@ -59,7 +61,7 @@ public class JavaChatApp {
     }
     
     private static void runQuickChatMenu(Scanner scanner) {
-        boolean running = true;
+        boolean running = true; 
         
         System.out.println("\n" + "=".repeat(40));
         System.out.println("Welcome to QuickChat");
@@ -69,7 +71,10 @@ public class JavaChatApp {
             System.out.println("\nPlease select an option: ");
             System.out.println("1) Send Messages");
             System.out.println("2) Show recently sent messages");
-            System.out.println("3) Quit");
+            System.out.println("3) Display message report");
+            System.out.println("4) Search messages");
+            System.out.println("5) Delete Message");
+            System.out.println("6) Quit");
             System.out.println("Enter your choice: ");
             
             int choice = getIntInput(scanner);
@@ -79,14 +84,23 @@ public class JavaChatApp {
                     sendMessages(scanner);
                     break;
                 case 2: 
-                    System.out.println("\nComing Soon");
+                    System.out.println(Message.displaySenderAndRecipient());
                     break;
                 case 3: 
+                    System.out.println(Message.displayMessageReport());
+                    break;
+                case 4: 
+                    searchMessages(scanner);
+                    break;
+                case 5: 
+                    deleteMessages(scanner);
+                    break;
+                case 6: 
+                    running = false;
                     System.out.println("\nThank you for using QuickChat. Goodbye!");
-                    running = false; 
                     break;
                 default: 
-                    System.out.println("\nInvalid option. Please select 1, 2, or 3.");
+                    System.out.println("\nInvalid option. Please select 1-6");
             }
         }
     }
@@ -106,13 +120,10 @@ public class JavaChatApp {
         
         Message.resetTotalMessages();
         
-        Message[] messages = new Message[numMessages];
-        int messagesSent = 0;
-        
         for (int i = 0; i < numMessages; i++) {
             System.out.println("\n--- Message " + (i + 1) + " of " + numMessages + "---");
             
-            System.out.println("Enter recipient phone number (+27XXXXXXXXXX): ");
+            System.out.println("Enter recipient phone number (+27XXXXXXXXXX)");
             String recipient = scanner.nextLine();
             
             System.out.println("Enter your message: ");
@@ -124,20 +135,17 @@ public class JavaChatApp {
             System.out.println(lengthCheck);
             
             if (!lengthCheck.equals("Message ready to send")) {
-                System.out.println("Message not sent due to length issue. ");
+                System.out.println("Message not sent due to length issue.");
                 continue;
             }
             
-            int recipientCheck = message.checkRecipientCell();
-            if (recipientCheck == 0) {
-                System.out.println("Cell phone number is incorrectly formatted or does not contain an international code. Please correct the number and try again.");
-                continue; 
-            } else {
-                System.out.println("Cell phone number successfully captured.");
+            if (message.checkRecipientCell() == 0) {
+                System.out.println("Invalid phone number format.");
+                continue;
             }
             
             System.out.println("\n" + message.printMessage());
-            System.out.println("\nMessage Hash: " + message.getMessageHash());
+            System.out.println("Message Hash: " + message.getMessageHash());
             
             System.out.println("\nWhat would you like to do?");
             System.out.println("1) Send message");
@@ -146,46 +154,68 @@ public class JavaChatApp {
             System.out.println("Enter your choice");
             
             int sendChoice = getIntInput(scanner);
-            String result = message.sendMessage(sendChoice);
-            System.out.println(result);
+            System.out.println(message.sendMessage(sendChoice));
             
             if (sendChoice == 3) {
-                String jsonResult = message.storeMessageToJSON("messages.json");
-                System.out.println(jsonResult);
+                message.storeMessageToJSON("messages.json");
             }
             
-            messages[i] = message;
-            
             if (sendChoice == 1) {
-                messagesSent++;
-                
-                JOptionPane.showMessageDialog(null, 
-                        message.printMessage(), 
+                JOptionPane.showMessageDialog(null, message.printMessage(),
                         "Message Sent",
                         JOptionPane.INFORMATION_MESSAGE);
             }
         }
+            System.out.println("\nTotal messages sent: " + Message.returnTotalMessages());
+        }
+               
+    
+    private static void searchMessages(Scanner scanner) {
+        System.out.println("\n=== SEARCH MESSAGES ===");
+        System.out.println("1) Search by recipient");
+        System.out.println("2) Display longest message");
+        System.out.println("3) Display all senders & recipients");
+        System.out.println("Choice: ");
         
-        int totalSent = Message.returnTotalMessages();
-        System.out.println("\n" + "=".repeat(40));
-        System.out.println("Total messages sent: " + totalSent);
-        System.out.println("=".repeat(40));
+        int choice = getIntInput(scanner);
         
-        JOptionPane.showMessageDialog(null, 
-                "Total messages sent in the session: " + totalSent,
-                "Session Summary",
-                JOptionPane.INFORMATION_MESSAGE);
+        switch (choice) {
+            case 1: 
+                System.out.println("Enter recipient: ");
+                String searchRecipient = scanner.nextLine();
+                String result = Message.searchMessageByRecipient(searchRecipient);
+                System.out.println(result);
+                break;
+            
+            case 2:
+                System.out.println("\nLongest message: ");
+                System.out.println(Message.displayLongestMessage());
+                break;
+            case 3:
+                System.out.println(Message.displaySenderAndRecipient());
+                break;
+            default:
+                System.out.println("Invalid choice.");
+        }
+    }
+    
+    private static void deleteMessages(Scanner scanner) {
+        System.out.println("\n=== DELETE MESSAGE ===");
+        System.out.println("Enter message hash: ");
+        String hash = scanner.nextLine();
+        
+        System.out.println(Message.deleteMessageByHash(hash));
     }
     
     private static int getIntInput(Scanner scanner) {
         while(true) {
             try {
-            String input = scanner.nextLine();
-            return Integer.parseInt(input);
+            return Integer.parseInt(scanner.nextLine());
             } catch (NumberFormatException e) {
                 System.out.println("Invalid input. Please enter a number: ");
             }
         }
     }
+    
 }
  

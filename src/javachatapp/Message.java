@@ -2,6 +2,9 @@
 package javachatapp;
 
 import java.util.Random;
+import java.nio.file.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 /**
  * MESSAGE CLASS - QUICKCHAT MESSAGING SYSTEM 
  * 
@@ -30,6 +33,20 @@ public class Message {
     private String messageText;
     private String messageHash; 
     private static int totalMessagesSent = 0;
+    
+    private static final String[] sentMessages = new String[100];
+    private static final String[] disregardedMessages = new String[100];
+    private static final String[] storedMessages = new String[100];
+    private static final String[] messageIDs = new String [100];
+    private static final String[] recipients = new String[100];
+    private static final String[] messageHashes = new String[100];
+    
+    private static final String[] storedRecipients = new String [100];
+    private static final String[] storedHashes = new String[100];
+    
+    private static int sentCount = 0;
+    private static int disregardedCount = 0;
+    private static int storedCount = 0;
     
     public Message(int messageNumber, String recipient, String messageText) {
         this.messageID = generateMessageID();
@@ -83,10 +100,23 @@ public class Message {
     
     public String sendMessage(int choice) {
         switch (choice) {
-            case 1: totalMessagesSent++;
+            case 1: 
+                totalMessagesSent++;
+                sentMessages[sentCount] = messageText;
+                messageIDs[sentCount] = messageID;
+                recipients[sentCount] = recipient; 
+                messageHashes[sentCount] = messageHash;
+                sentCount++;
                 return MESSAGE_SENT;
-            case 2: return MESSAGE_DISCARD;
-            case 3: return MESSAGE_STORED;
+            case 2: 
+                disregardedMessages[disregardedCount++] = messageText;
+                return MESSAGE_DISCARD;
+            case 3: 
+                storedMessages[storedCount] = messageText;
+                storedRecipients[storedCount] = recipient;
+                storedHashes[storedCount] = messageHash;
+                storedCount++;
+                return MESSAGE_STORED;
             default: return "Invalid choice";
         }
     }
@@ -101,6 +131,102 @@ public class Message {
     
     public static void resetTotalMessages() {
         totalMessagesSent = 0;
+        
+        for (int i = 0; i < sentCount; i++) {
+            sentMessages[i] = null;
+            messageIDs[i] = null;
+            recipients[i] = null;
+            messageHashes[i] = null;
+        }
+        for (int i = 0; i < disregardedCount; i++) {
+            disregardedMessages[i] = null;
+        }
+        for (int i = 0; i < storedCount; i++) {
+            storedMessages[i] = null;
+            storedRecipients[i] = null;
+            storedHashes[i] = null;
+        }
+        sentCount = 0;
+        disregardedCount = 0;
+        storedCount = 0;
+    }
+    
+    public static String displaySenderAndRecipient() {
+        if (sentCount == 0) return "No sent messages to display.";
+        
+        StringBuilder sb = new StringBuilder("=== Sent Messages ===\n");
+        for (int i = 0; i < sentCount; i++) {
+            sb.append("Message ").append(i + 1).append(":\n")
+              .append("Recipient: ").append(recipients[i]).append("\n")
+              .append("Message: ").append(sentMessages[i]).append("\n\n");
+        }
+        return sb.toString();
+    }
+    
+    public static String displayLongestMessage() {
+        if (sentCount == 0) return "No sent messages to display.";
+        String longest = sentMessages[0];
+        
+        for (int i = 1; i < sentCount; i++) {
+            if (sentMessages[i].length() > longest.length()) {
+                longest = sentMessages[i];
+            }
+        }
+        return longest;
+    }
+    
+    public static String searchMessageByRecipient(String search) {
+        for (int i = 0; i < sentCount; i++) {
+            if (recipients[i].contains(search)) {
+                return sentMessages[i];
+            }
+        }
+        return "No messages found for recipient: " + search;
+    }
+    
+    public static String deleteMessageByHash(String hash) {
+        for (int i = 0; i < sentCount; i++) {
+            if (messageHashes[i].equals(hash)) {
+                String deleted = sentMessages[i];
+                
+                for (int j = i; j < sentCount - 1; j++) {
+                    sentMessages[j] = sentMessages[j + 1];
+                    messageIDs[j] = messageIDs [j + 1];
+                    recipients[j] = recipients[j + 1];
+                    messageHashes[j] = messageHashes[j + 1];
+                }
+                sentCount--;
+                
+                return "Message \"" + deleted + "\" successfully deleted.";
+            }
+        }
+        return "Message with hash " + hash + " not found.";
+    }
+    
+    public static String displayMessageReport() {
+        if (sentCount == 0) return "No sent messages to display.";
+        
+        StringBuilder sb = new StringBuilder("==== MESSAGE REPORT ====");
+        
+        for (int i = 0; i < sentCount; i++) {
+            sb.append("Message ").append(i + 1).append("\n")
+              .append("Hash: ").append(messageHashes[i]).append("\n")
+              .append("Recipient: ").append(recipients[i]).append("\n")
+              .append("Message: ").append(sentMessages[i]).append("\n\n");
+        }
+        sb.append("Total Sent Messages: ").append(sentCount);
+        return sb.toString();
+    }
+    
+    public static String[] searchAllMessagesByRecipient(String search) {
+        java.util.List<String> results = new java.util.ArrayList<>();
+        for (int i = 0; i < sentCount; i++) {
+            if (recipients[i].contains(search)) {
+                results.add(sentMessages[i]);
+            }
+        }
+        
+        return results.toArray(new String[0]);
     }
     
     /**
@@ -179,5 +305,15 @@ public class Message {
         
         public String getMessageHash() {
             return messageHash;
+        }
+        
+        public static String[] getSentMessagesArray() {
+            return sentMessages;
+        }
+        public static String[] getDisregardedMessagesArray() {
+            return disregardedMessages;
+        }
+        public static String[] getStoredMessagesArray() {
+            return storedMessages;
         }
     }

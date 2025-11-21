@@ -193,4 +193,53 @@ public class MessageTest {
         assertTrue(result.toLowerCase().contains("successfully"));
         new java.io.File(filename).delete();
     }
+    
+    @Test 
+    public void testSentMessagesArray() {
+        Message.resetTotalMessages();
+        
+        Message m1 = new Message(0, "+27834557896", "Did you get the cake?");
+        m1.sendMessage(1);
+        
+        Message m2 = new Message(1, "0838884567", "It is dinner time !");
+        m2.sendMessage(1);
+        
+        assertEquals("Did you get the cake?", Message.getSentMessagesArray()[0]);
+        assertEquals("It is dinner time !", Message.getSentMessagesArray()[1]);
+    }
+    
+    @Test 
+    public void testDisplayLongestMessage() {
+        Message.resetTotalMessages();
+        Message m1 = new Message(0, "+27834557896", "Did you get the cake?");
+        m1.sendMessage(1);
+        Message m2 = new Message(1, "083884567", "It is dinner time !");
+        m2.sendMessage(1);
+        
+        assertEquals("Did you get the cake?", Message.displayLongestMessage());
+    }
+    
+    @Test 
+    public void testSearchAllMessagesByRecipient() {
+        Message.resetTotalMessages();
+        
+        Message m1 = new Message(0, "+27838884567", "Where are you? You are late!");
+        m1.sendMessage(1);
+        
+        String[] results = Message.searchAllMessagesByRecipient("+27838884567");
+        assertTrue(results.length > 0);
+    }
+    
+    @Test
+    public void testDeleteMessageByHash() {
+        Message.resetTotalMessages();
+        
+        Message m1 = new Message(0, "+27834557896", "Did you get the cake?");
+        m1.sendMessage(1);
+        
+        String hash = m1.getMessageHash();
+        String msg = Message.deleteMessageByHash(hash);
+        
+        assertTrue(msg.contains("successfully deleted"));
+    }
 }
